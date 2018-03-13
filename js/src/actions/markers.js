@@ -1,7 +1,7 @@
 'use strict'
 
-export const createNewMarker = (marker) => ({
-    type: 'CREATE_MARKER',
+export const placeMarker = (marker) => ({
+    type: 'PLACE_MARKER',
     marker: marker
 })
 

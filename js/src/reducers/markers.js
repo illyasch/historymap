@@ -2,7 +2,7 @@
 
 const markers = (state = [], action) => {
     switch (action.type) {
-        case 'CREATE_MARKER':
+        case 'PLACE_MARKER':
             let marker = new google.maps.Marker({
                 position: {
                     lat: parseFloat(action.marker.x),

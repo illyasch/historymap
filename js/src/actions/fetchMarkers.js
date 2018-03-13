@@ -1,6 +1,6 @@
 'use strict'
 
-import {createNewMarker, startFetchingMarkers, finishFetchingMarkers} from './markers'
+import {placeMarker, startFetchingMarkers, finishFetchingMarkers} from './markers'
 
 export function fetchMarkers(url) {
     return function (dispatch) {
@@ -14,7 +14,7 @@ export function fetchMarkers(url) {
             throw new Error("Oops, we haven't got images!");
         }).then(function(json) {
             json.forEach(function (marker) {
-                dispatch(createNewMarker(marker))
+                dispatch(placeMarker(marker))
                 //console.log(createOverlay(image))
             });
 

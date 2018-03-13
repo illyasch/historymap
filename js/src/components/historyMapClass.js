@@ -2,6 +2,7 @@
 
 import { settings } from '../settings'
 import { displayYears } from '../actions/years'
+import { createNewMarker } from '../actions/createNewMarker'
 
 export class historyMapClass {
     constructor(store) {
@@ -34,8 +35,13 @@ export class historyMapClass {
 
         this.images = this.overlays = [];
 
+        google.maps.event.addListener(this.map, 'click', function(event) {
+            console.log('Yes!')
+            this.createMarker(event)
+        }.bind(this))
+
         this.map.addListener('zoom_changed', function() { this.checkLayers() }.bind(this))
-        this.map.addListener('bounds_changed', function() { () => this.checkBounds() }.bind(this))
+        this.map.addListener('bounds_changed', function() { this.checkBounds() }.bind(this))
     }
 
     render(state) {
@@ -61,6 +67,11 @@ export class historyMapClass {
         markers.forEach((marker, i) => {
             marker.setMap(this.map)
         })
+    }
+
+    createMarker(event) {
+        console.log('Create Marker!')
+        this.store.dispatch(createNewMarker('/createmarker', event.latLng))
     }
 
     checkLayers() {
