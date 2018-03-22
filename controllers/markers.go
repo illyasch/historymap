@@ -28,20 +28,20 @@ func (this *MarkersController) Get() {
 
 	o := orm.NewOrm()
 
-	o.Raw("SELECT m.marker_id, m.x, m.y FROM marker m").Values(&markers)
-	/*
+	//o.Raw("SELECT m.marker_id, m.x, m.y FROM marker m").Values(&markers)
 	o.Raw("SELECT m.marker_id, m.x, m.y, t.title FROM marker m " +
-		"INNER JOIN marker_titles t ON t.marker_id = m.marker_id " +
-			"INNER JOIN langs l ON t.lang_id = l.lang_id " +
+		"INNER JOIN marker_title t ON t.marker_id = m.marker_id " +
+			"INNER JOIN lang l ON t.lang_id = l.lang_id " +
 				"WHERE l.code = ? ORDER BY m.marker_id ASC", lang).Values(&markers)
-*/
+
 	this.Data["json"] = markers
 	this.ServeJSON()
 }
 
-type LatLng struct {
+type markerRequest struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
+	Title string
 }
 
 // @router /markers/create
@@ -57,24 +57,17 @@ func (this *MarkersController) CreateMarker() {
 	logger.SetLogger("console")
 	logger.Debug("%s", string(this.Ctx.Input.RequestBody))
 
-	var newPosition LatLng
-	err := json.Unmarshal(this.Ctx.Input.RequestBody, &newPosition)
+	var request markerRequest
+	err := json.Unmarshal(this.Ctx.Input.RequestBody, &request)
 
 	if err != nil {
 		response.SetError(models.JSON_PARSING, err)
 		return
 	}
 
-	logger.Debug("%v", newPosition)
+	logger.Debug("%v", request)
 
-	o := orm.NewOrm()
-
-	var newMarker models.Marker
-
-	newMarker.X = newPosition.Lat
-	newMarker.Y = newPosition.Lng
-
-	id, err := o.Insert(&newMarker)
+	id, err := models.CreateMarker(request.Lat, request.Lng, request.Title, "ru")
 
 	if err == nil {
 		response.SetSuccess()

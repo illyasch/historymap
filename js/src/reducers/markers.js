@@ -9,12 +9,16 @@ const markers = (state = [], action) => {
                     lng: parseFloat(action.marker.y)
                 },
                 title: action.marker.title
-            });
+            })
 
             return [
                 ...state,
                 marker
             ]
+
+        case 'CLEAR_MARKERS':
+            return []
+        
         default:
             return state
     }

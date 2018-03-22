@@ -12,7 +12,8 @@ export class overlayClass {
 
         this.groundOverlay = new google.maps.GroundOverlay(
             this.imgSrc,
-            this.bounds
+            this.bounds,
+            {clickable: false}
         )
     }
 }

@@ -2,7 +2,10 @@
 
 import { settings } from '../settings'
 import { displayYears } from '../actions/years'
-import { createNewMarker } from '../actions/createNewMarker'
+import { createNewMarker, removeNewMarker } from '../actions/markers'
+import {saveNewMarker} from "../actions/saveNewMarker"
+import {fetchMarkers} from "../actions/fetchMarkers"
+import {updateMarkers} from "../actions/updateMarkers"
 
 export class historyMapClass {
     constructor(store) {
@@ -44,22 +47,23 @@ export class historyMapClass {
     }
 
     render(state) {
+        console.log('New render!')
+
         if(state.fetching.started) {
             return
         }
 
         this.renderOverlays(state.overlays, state.years)
         this.renderMarkers(state.markers)
+        this.renderNewElements(state.newElements)
     }
 
     renderOverlays(overlays, years) {
         overlays.forEach((overlay, i) => {
             if (years.indexOf(overlay.year) != -1) {
                 overlay.groundOverlay.setMap(this.map)
-                overlay.groundOverlay.setClickable(true)
             } else {
                 overlay.groundOverlay.setMap(null)
-                overlay.groundOverlay.setClickable(false)
             }
         })
     }
@@ -70,9 +74,14 @@ export class historyMapClass {
         })
     }
 
+    renderNewElements(newElements) {
+        newElements.forEach((element, i) => {
+            this.createMarkerDialog(element)
+        })
+    }
+
     createMarker(event) {
-        console.log('map click')
-        this.store.dispatch(createNewMarker(settings.apiURLs.markersCreate, event.latLng))
+        this.store.dispatch(createNewMarker(event.latLng))
     }
 
     checkLayers() {
@@ -105,5 +114,54 @@ export class historyMapClass {
 
             this.map.setCenter(new google.maps.LatLng(Y,X));
         }
+    }
+
+    createMarkerDialog(marker) {
+        marker.setMap(this.map)
+
+        const contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">Добавить точку</h1>'+
+            '<div id="bodyContent"><form id="markerForm" name="markerForm">'+
+            '<p>Название<br><textarea name="markerName" id="markerName"></textarea></p>'+
+            '<p><input id="markerSubmit" type="button" value="Добавить"> <input id="markerCancel" type="button" value="Отменить"></p>'+
+            '</form></div>'+
+            '</div>';
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: contentString
+        })
+
+        const dispatch = this.store.dispatch
+
+        google.maps.event.addListener(infoWindow, 'domready', () => {
+            document.getElementById("markerSubmit").addEventListener("click", (e) => {
+                e.stopPropagation()
+
+                const title = document.getElementById("markerName").value;
+                this.closeMarkerDialog(infoWindow, marker)
+
+                dispatch(saveNewMarker(settings.apiURLs.markersCreate, marker.getPosition(), title))
+                dispatch(updateMarkers(settings.apiURLs.markersList))
+            })
+
+            document.getElementById("markerCancel").addEventListener("click", (e) => {
+                e.stopPropagation()
+                this.closeMarkerDialog(infoWindow, marker)
+            })
+
+            google.maps.event.addListener(infoWindow, 'closeclick', (e) => {
+                this.closeMarkerDialog(infoWindow, marker)
+            })
+        })
+
+        infoWindow.open(this.map, marker)
+    }
+
+    closeMarkerDialog(window, marker) {
+        window.close()
+        marker.setMap(null)
+        this.store.dispatch(removeNewMarker(marker))
     }
 }
