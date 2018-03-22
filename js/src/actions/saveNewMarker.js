@@ -28,7 +28,7 @@ export function saveNewMarker(url, position, title) {
                 throw new Error("Oops, a new marker creation error!");
             }
 
-            dispatch(fetchMarkers(settings.apiURLs.markersList))
+            dispatch(openPhotoDialog(json.data.newId))
         }).catch(function(error) {
             console.log(error)
         })

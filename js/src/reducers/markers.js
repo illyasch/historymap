@@ -1,15 +1,11 @@
 'use strict'
 
+import {markerClass} from "../components/markerClass"
+
 const markers = (state = [], action) => {
     switch (action.type) {
         case 'PLACE_MARKER':
-            let marker = new google.maps.Marker({
-                position: {
-                    lat: parseFloat(action.marker.x),
-                    lng: parseFloat(action.marker.y)
-                },
-                title: action.marker.title
-            })
+            const marker = new markerClass(action.marker)
 
             return [
                 ...state,

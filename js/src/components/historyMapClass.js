@@ -4,8 +4,7 @@ import { settings } from '../settings'
 import { displayYears } from '../actions/years'
 import { createNewMarker, removeNewMarker } from '../actions/markers'
 import {saveNewMarker} from "../actions/saveNewMarker"
-import {fetchMarkers} from "../actions/fetchMarkers"
-import {updateMarkers} from "../actions/updateMarkers"
+import { openPhotoDialog, closePhotoDialog, setPhotoDialog } from "../actions/photos"
 
 export class historyMapClass {
     constructor(store) {
@@ -56,6 +55,7 @@ export class historyMapClass {
         this.renderOverlays(state.overlays, state.years)
         this.renderMarkers(state.markers)
         this.renderNewElements(state.newElements)
+        this.renderPhotoDialog(state)
     }
 
     renderOverlays(overlays, years) {
@@ -70,7 +70,11 @@ export class historyMapClass {
 
     renderMarkers(markers) {
         markers.forEach((marker, i) => {
-            marker.setMap(this.map)
+            marker.googleMarker.setMap(this.map)
+
+            marker.googleMarker.addListener('click', () => {
+                this.store.dispatch(openPhotoDialog(marker.marker_id))
+            })
         })
     }
 
@@ -117,6 +121,8 @@ export class historyMapClass {
     }
 
     createMarkerDialog(marker) {
+        marker = marker.googleMarker
+
         marker.setMap(this.map)
 
         const contentString = '<div id="content">'+
@@ -143,7 +149,6 @@ export class historyMapClass {
                 this.closeMarkerDialog(infoWindow, marker)
 
                 dispatch(saveNewMarker(settings.apiURLs.markersCreate, marker.getPosition(), title))
-                dispatch(updateMarkers(settings.apiURLs.markersList))
             })
 
             document.getElementById("markerCancel").addEventListener("click", (e) => {
@@ -163,5 +168,54 @@ export class historyMapClass {
         window.close()
         marker.setMap(null)
         this.store.dispatch(removeNewMarker(marker))
+    }
+
+    renderPhotoDialog(state) {
+        if (!state.photos || !state.photos.dialog || !state.photos.dialog.marker_id || state.photos.dialog.opened) {
+            return
+        }
+
+        const marker = state.markers.find((el) => el.marker_id == state.photos.dialog.marker_id)
+
+        if (!marker) {
+            return
+        }
+
+        marker.googleMarker.setMap(this.map)
+
+        const contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h1 id="firstHeading" class="firstHeading">Добавить фото</h1>'+
+            '<div id="bodyContent"><form id="photoForm" name="photoForm">'+
+            '<p>Название<br><textarea name="photoText" id="photoText"></textarea></p>'+
+            '<p><input type="file" name="photoFile" id="photoFile"></p>'+
+            '<p><input id="photoSubmit" type="button" value="Сохранить"> <input id="photoNext" type="button" value="Еще фото &gt;&gt;"></p>'+
+            '</form></div>'+
+            '</div>';
+
+        const infoWindow = new google.maps.InfoWindow({
+            content: contentString
+        })
+
+        const dispatch = this.store.dispatch
+
+        google.maps.event.addListener(infoWindow, 'domready', () => {
+            document.getElementById("photoSubmit").addEventListener("click", (e) => {
+                e.stopPropagation()
+
+                const title = document.getElementById("photoFile").value
+                infoWindow.close()
+
+                dispatch(closePhotoDialog())
+            })
+
+            google.maps.event.addListener(infoWindow, 'closeclick', (e) => {
+                dispatch(closePhotoDialog())
+            })
+        })
+
+        infoWindow.open(this.map, marker.googleMarker)
+        dispatch(setPhotoDialog())
     }
 }
