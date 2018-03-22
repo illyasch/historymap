@@ -35,10 +35,9 @@ export class historyMapClass {
 
         this.images = this.overlays = [];
 
-        google.maps.event.addListener(this.map, 'click', function(event) {
-            console.log('Yes!')
-            this.createMarker(event)
-        }.bind(this))
+        const onClickListener = function(event) { this.createMarker(event) }.bind(this)
+
+        this.map.addListener('click', onClickListener)
 
         this.map.addListener('zoom_changed', function() { this.checkLayers() }.bind(this))
         this.map.addListener('bounds_changed', function() { this.checkBounds() }.bind(this))
@@ -57,8 +56,10 @@ export class historyMapClass {
         overlays.forEach((overlay, i) => {
             if (years.indexOf(overlay.year) != -1) {
                 overlay.groundOverlay.setMap(this.map)
+                overlay.groundOverlay.setClickable(true)
             } else {
                 overlay.groundOverlay.setMap(null)
+                overlay.groundOverlay.setClickable(false)
             }
         })
     }
@@ -70,8 +71,8 @@ export class historyMapClass {
     }
 
     createMarker(event) {
-        console.log('Create Marker!')
-        this.store.dispatch(createNewMarker('/createmarker', event.latLng))
+        console.log('map click')
+        this.store.dispatch(createNewMarker(settings.apiURLs.markersCreate, event.latLng))
     }
 
     checkLayers() {

@@ -6,6 +6,7 @@ import { fetchImages } from './actions/fetchImages'
 import { fetchMarkers } from './actions/fetchMarkers'
 import { displayYears } from './actions/years'
 import { historyMapClass } from './components/historyMapClass'
+import { settings } from "./settings"
 
 const store = createStore(
     historyMapApp,
@@ -23,11 +24,11 @@ export function initStore() {
     })
 
     store
-        .dispatch(fetchImages('/bgimages'))
+        .dispatch(fetchImages(settings.apiURLs.imagesList))
         .then(() => store.dispatch(displayYears([1902])))
         .then(() => console.log(store.getState()))
 
     store
-        .dispatch(fetchMarkers('/ru/markers'))
+        .dispatch(fetchMarkers(settings.apiURLs.markersList))
         .then(() => console.log(store.getState()))
 }
