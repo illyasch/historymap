@@ -10,4 +10,5 @@ func init() {
 	beego.Router("/bgimages", &controllers.BgImagesController{})
 	beego.Router("/:lang/markers/list", &controllers.MarkersController{})
 	beego.Router("/markers/create", &controllers.MarkersController{},"post:CreateMarker")
+	beego.Router("/photos/upload", &controllers.PhotosController{},"post:UploadPhoto")
 }

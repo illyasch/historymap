@@ -4,6 +4,7 @@ import { settings } from '../settings'
 import { displayYears } from '../actions/years'
 import { createNewMarker, removeNewMarker } from '../actions/markers'
 import {saveNewMarker} from "../actions/saveNewMarker"
+import {uploadPhoto} from "../actions/uploadPhoto"
 import { openPhotoDialog, closePhotoDialog, setPhotoDialog } from "../actions/photos"
 
 export class historyMapClass {
@@ -204,9 +205,11 @@ export class historyMapClass {
             document.getElementById("photoSubmit").addEventListener("click", (e) => {
                 e.stopPropagation()
 
-                const title = document.getElementById("photoFile").value
+                const text = document.getElementById("photoText").value;
+                const file = document.getElementById("photoFile");
                 infoWindow.close()
 
+                dispatch(uploadPhoto(settings.apiURLs.uploadPhoto, marker.marker_id, file, text))
                 dispatch(closePhotoDialog())
             })
 

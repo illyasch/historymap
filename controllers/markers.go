@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"encoding/json"
 	"historymap/models"
@@ -10,32 +9,39 @@ import (
 	"strconv"
 )
 
+const CHANNEL_LEN = 10000
+
 type MarkersController struct {
 	beego.Controller
+	logger *logs.BeeLogger
+	response models.ApiResponse
+}
+
+func (this *MarkersController) Prepare() {
+	this.logger = logs.NewLogger(CHANNEL_LEN)
+	this.logger.SetLogger("console")
 }
 
 // @router /:lang/markers/list
 func (this *MarkersController) Get() {
-	logger := logs.NewLogger(10000)
-	logger.SetLogger("console")
+	defer func() {
+		this.Data["json"] = this.response
+		this.ServeJSON()
+	}()
 
 	var lang string
 	lang = this.Ctx.Input.Param(":lang")
 
-	logger.Debug(lang)
+	this.logger.Debug(lang)
 
-	var markers []orm.Params
+	markers, err := models.GetMarkersList(lang)
 
-	o := orm.NewOrm()
-
-	//o.Raw("SELECT m.marker_id, m.x, m.y FROM marker m").Values(&markers)
-	o.Raw("SELECT m.marker_id, m.x, m.y, t.title FROM marker m " +
-		"INNER JOIN marker_title t ON t.marker_id = m.marker_id " +
-			"INNER JOIN lang l ON t.lang_id = l.lang_id " +
-				"WHERE l.code = ? ORDER BY m.marker_id ASC", lang).Values(&markers)
-
-	this.Data["json"] = markers
-	this.ServeJSON()
+	if err == nil {
+		this.response.SetSuccess()
+		this.response.Data["markers"] = markers
+	} else {
+		this.response.SetError(models.DB_ERROR, err)
+	}
 }
 
 type markerRequest struct {
@@ -46,33 +52,29 @@ type markerRequest struct {
 
 // @router /markers/create
 func (this *MarkersController) CreateMarker() {
-	var response models.ApiResponse
-
 	defer func() {
-		this.Data["json"] = response
+		this.Data["json"] = this.response
 		this.ServeJSON()
 	}()
 
-	logger := logs.NewLogger(10000)
-	logger.SetLogger("console")
-	logger.Debug("%s", string(this.Ctx.Input.RequestBody))
+	//this.logger.Debug("%s", string(this.Ctx.Input.RequestBody))
 
 	var request markerRequest
 	err := json.Unmarshal(this.Ctx.Input.RequestBody, &request)
 
 	if err != nil {
-		response.SetError(models.JSON_PARSING, err)
+		this.response.SetError(models.JSON_PARSING, err)
 		return
 	}
 
-	logger.Debug("%v", request)
+	//this.logger.Debug("%v", request)
 
 	id, err := models.CreateMarker(request.Lat, request.Lng, request.Title, "ru")
 
 	if err == nil {
-		response.SetSuccess()
-		response.Data["newId"] = strconv.FormatInt(id, 10)
+		this.response.SetSuccess()
+		this.response.Data["newId"] = strconv.FormatInt(id, 10)
 	} else {
-		response.SetError(models.DB_ERROR, err)
+		this.response.SetError(models.DB_ERROR, err)
 	}
 }

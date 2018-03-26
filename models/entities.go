@@ -84,3 +84,15 @@ func CreateMarker(x float64, y float64, title string, lang string) (newMarkerId 
 
 	return newMarkerId, err
 }
+
+func GetMarkersList(lang string) (markers []orm.Params, err error){
+	o := orm.NewOrm()
+
+	//o.Raw("SELECT m.marker_id, m.x, m.y FROM marker m").Values(&markers)
+	_, err = o.Raw("SELECT m.marker_id, m.x, m.y, t.title FROM marker m " +
+		"INNER JOIN marker_title t ON t.marker_id = m.marker_id " +
+		"INNER JOIN lang l ON t.lang_id = l.lang_id " +
+		"WHERE l.code = ? ORDER BY m.marker_id ASC", lang).Values(&markers)
+
+	return markers, err
+}

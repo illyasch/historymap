@@ -11,18 +11,26 @@ export function fetchMarkers(url) {
                 return response.json();
             }
 
-            throw new Error("Oops, we haven't got images!");
+            dispatch(finishFetchingMarkers())
+            throw new Error("Oops, we haven't got markers!")
         }).then(function(json) {
-            json.forEach(function (marker) {
+            if (json.Status == 'error') {
+                console.log('A marker fetching error:')
+                console.log(json)
+
+                dispatch(finishFetchingMarkers())
+                throw new Error("Oops, a new marker fetching error!")
+            }
+
+            json.Data.markers.forEach(function (marker) {
                 dispatch(placeMarker(marker))
-                //console.log(createOverlay(image))
-            });
+            })
 
             dispatch(finishFetchingMarkers())
         }).catch(function(error) {
             console.log(error);
 
             dispatch(finishFetchingMarkers())
-        });
+        })
     }
 }

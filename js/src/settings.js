@@ -19,7 +19,8 @@ class SettingsClass {
         this.apiURLs = {
             imagesList: '/bgimages',
             markersCreate: '/markers/create',
-            markersList: '/ru/markers/list'
+            markersList: '/ru/markers/list',
+            uploadPhoto: '/photos/upload'
         }
     }
 }
