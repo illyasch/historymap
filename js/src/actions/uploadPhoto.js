@@ -1,6 +1,6 @@
 'use strict'
 
-import {openPhotoDialog} from "./photos"
+import {openPhotoDialog, setUploadPhotoStatus} from "./photos"
 
 export function uploadPhoto(url, marker_id, input, text) {
     const data = new FormData()
@@ -17,16 +17,18 @@ export function uploadPhoto(url, marker_id, input, text) {
                 return response.json();
             }
 
+            dispatch(setUploadPhotoStatus('error'))
             throw new Error("Oops, an upload photo error!");
         }).then(function(json) {
             if (json.Status == 'error') {
                 console.log('An upload photo error:')
                 console.log(json)
 
+                dispatch(setUploadPhotoStatus('error'))
                 throw new Error("\"Oops, an upload photo error!");
             }
 
-            dispatch(openPhotoDialog(json.Data.newId))
+            dispatch(setUploadPhotoStatus('success'))
         }).catch(function(error) {
             console.log(error)
         })

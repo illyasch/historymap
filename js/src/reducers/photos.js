@@ -28,6 +28,11 @@ const photos = (state = {dialog: null}, action) => {
                 dialog: newDialog
             })
 
+        case 'SET_UPLOAD_PHOTO_STATUS':
+            return Object.assign({}, state, {
+                uploadPhotoStatus: action.status
+            })
+
         default:
             return state
     }

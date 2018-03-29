@@ -64,9 +64,10 @@ func (this *PhotosController) CreatePhoto(file string, marker string, text strin
 	var newPhoto models.Photo
 	if err == nil {
 		newPhoto.Marker_id = curMarker.Marker_id
-
-		_, err = o.Insert(&newPhoto)
+		newPhoto.Photo_id, err = o.Insert(&newPhoto)
 	}
+
+	this.logger.Debug("%v", newPhoto)
 
 	newFileName := strconv.FormatInt(newPhoto.Photo_id, 10) + fileExt
 	err = this.SaveToFile("file", beego.AppConfig.String("uploadDir") + newFileName)
@@ -82,8 +83,10 @@ func (this *PhotosController) CreatePhoto(file string, marker string, text strin
 		newPhotoText.Lang_id = curLang.Lang_id
 		newPhotoText.About = text
 
-		_, err = o.Insert(&newPhotoText)
+		newPhotoText.Text_id, err = o.Insert(&newPhotoText)
 	}
+
+	this.logger.Debug("%v", newPhotoText)
 
 	if err != nil {
 		o.Rollback()

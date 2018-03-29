@@ -12,3 +12,8 @@ export const closePhotoDialog = () => ({
 export const setPhotoDialog = () => ({
     type: 'SET_PHOTO_DIALOG'
 })
+
+export const setUploadPhotoStatus = (status) => ({
+    type: 'SET_UPLOAD_PHOTO_STATUS',
+    status
+})
