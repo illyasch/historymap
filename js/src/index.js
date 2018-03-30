@@ -1,27 +1,35 @@
 import { createStore, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
 import { createLogger } from 'redux-logger'
+import { default as initSubscriber } from 'redux-subscriber'
 import { historyMapApp } from './reducers'
 import { fetchImages } from './actions/fetchImages'
 import { fetchMarkers } from './actions/fetchMarkers'
 import { displayYears } from './actions/years'
 import { historyMapClass } from './components/historyMapClass'
-import { settings } from "./settings"
+import { settings } from './settings'
+import { photoDialogClass } from './components/photoDialogClass'
 
 const store = createStore(
     historyMapApp,
     applyMiddleware(
-        thunk, // lets us dispatch() functions
-        createLogger() // neat middleware that logs actions
+        thunk, createLogger()
     )
 )
 
+const subscribe = initSubscriber(store)
+
 export function initStore() {
     const historyMap = new historyMapClass(store)
+    const photoDialog = new photoDialogClass(store)
+    const mapRender = (state) => historyMap.render(state)
+    const dialogRender = (state) => photoDialog.render(state)
 
-    store.subscribe(() => {
-       historyMap.render(store.getState())
-    })
+    subscribe('markers', mapRender)
+    subscribe('overlays', mapRender)
+    subscribe('years', mapRender)
+    subscribe('newElements', mapRender)
+    subscribe('photos', dialogRender)
 
     store
         .dispatch(fetchImages(settings.apiURLs.imagesList))

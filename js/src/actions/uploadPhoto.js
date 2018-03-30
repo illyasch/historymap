@@ -9,6 +9,8 @@ export function uploadPhoto(url, marker_id, input, text) {
     data.append('text', text)
 
     return function (dispatch) {
+        dispatch(setUploadPhotoStatus('uploading'))
+
         return fetch(url, {
             method: 'post',
             body: data
