@@ -6,6 +6,7 @@ import { createNewMarker, removeNewMarker } from '../actions/markers'
 import {saveNewMarker} from "../actions/saveNewMarker"
 import {uploadPhoto} from "../actions/uploadPhoto"
 import {openPhotoDialog, closePhotoDialog, setPhotoDialog, setUploadPhotoStatus} from "../actions/photos"
+import {fetchMarkerPhotos} from "../actions/fetchMarkerPhotos"
 
 export class historyMapClass {
     constructor(store) {
@@ -72,9 +73,14 @@ export class historyMapClass {
         markers.forEach((marker, i) => {
             marker.googleMarker.setMap(this.map)
 
-            marker.googleMarker.addListener('click', () => {
-                this.store.dispatch(openPhotoDialog(marker.marker_id))
-            })
+            let markerClick
+            if (marker.photoCnt > 0) {
+                markerClick = () => this.store.dispatch(fetchMarkerPhotos(marker.marker_id))
+            } else {
+                markerClick = () => this.store.dispatch(openPhotoDialog(marker.marker_id))
+            }
+
+            marker.googleMarker.addListener('click', markerClick)
         })
     }
 

@@ -57,7 +57,7 @@ func (this *PhotosController) Get() {
 
 	if err == nil {
 		this.response.SetSuccess()
-		this.response.Data["markers"] = photos
+		this.response.Data["photos"] = photos
 	} else {
 		this.response.SetError(models.DB_ERROR, err)
 	}

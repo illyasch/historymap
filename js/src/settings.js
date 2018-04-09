@@ -20,8 +20,11 @@ class SettingsClass {
             imagesList: '/bgimages',
             markersCreate: '/markers/create',
             markersList: '/ru/markers/list',
-            uploadPhoto: '/photos/upload'
+            uploadPhoto: '/photos/upload',
+            markerPhotosList: '/ru/photos/list'
         }
+
+        this.photosDir = 'static/img/upload'
     }
 }
 

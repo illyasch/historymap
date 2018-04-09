@@ -17,3 +17,12 @@ export const setUploadPhotoStatus = (status) => ({
     type: 'SET_UPLOAD_PHOTO_STATUS',
     status
 })
+
+export const openPhotoSwipe = (photos) => ({
+    type: 'OPEN_PHOTO_SWIPE',
+    photos
+})
+
+export const closePhotoSwipe = () => ({
+    type: 'CLOSE_PHOTO_SWIPE'
+})

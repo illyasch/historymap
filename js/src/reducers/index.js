@@ -5,6 +5,7 @@ import photos from './photos'
 import fetching from './fetching'
 import years from './years'
 import newElements from './newElements'
+import photoswipe from './photoswipe'
 
 export const historyMapApp = combineReducers({
     overlays,
@@ -12,5 +13,6 @@ export const historyMapApp = combineReducers({
     photos,
     fetching,
     years,
-    newElements
+    newElements,
+    photoswipe
 })

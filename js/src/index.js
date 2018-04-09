@@ -8,6 +8,7 @@ import { displayYears } from './actions/years'
 import { historyMapClass } from './components/historyMapClass'
 import { settings } from './settings'
 import { photoDialogClass } from './components/photoDialogClass'
+import { photoSwipeClass } from './components/photoSwipeClass'
 import { default as initSubscriber } from 'redux-subscriber'
 
 const store = createStore(
@@ -22,6 +23,7 @@ const subscribe = initSubscriber(store)
 export function initStore() {
     const historyMap = new historyMapClass(store)
     const photoDialog = new photoDialogClass(store)
+    const photoSwipe = new photoSwipeClass(store)
 
     subscribe('markers', (state) => historyMap.render(state))
     subscribe('overlays', (state) => historyMap.render(state))
@@ -29,6 +31,7 @@ export function initStore() {
     subscribe('newElements', (state) => historyMap.render(state))
 
     subscribe('photos', (state) => photoDialog.render(state))
+    subscribe('photoswipe', (state) => photoSwipe.render(state))
 
     store
         .dispatch(fetchImages(settings.apiURLs.imagesList))
