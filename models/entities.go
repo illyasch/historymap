@@ -89,7 +89,7 @@ func GetMarkersList(lang string) (markers []orm.Params, err error){
 	o := orm.NewOrm()
 
 	//o.Raw("SELECT m.marker_id, m.x, m.y FROM marker m").Values(&markers)
-	_, err = o.Raw("SELECT m.marker_id, m.x, m.y, t.title FROM marker m " +
+	_, err = o.Raw("SELECT m.marker_id, m.x, m.y, t.title, (SELECT count(*) FROM photo p WHERE p.marker_id = m.marker_id) as cnt FROM marker m " +
 		"INNER JOIN marker_title t ON t.marker_id = m.marker_id " +
 		"INNER JOIN lang l ON t.lang_id = l.lang_id " +
 		"WHERE l.code = ? ORDER BY m.marker_id ASC", lang).Values(&markers)

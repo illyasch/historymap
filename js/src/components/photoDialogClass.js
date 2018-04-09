@@ -10,7 +10,6 @@ export class photoDialogClass {
     }
 
     render(state) {
-        console.log('photoDialog')
         this.renderPhotoDialog(state)
         this.renderPhotoStatusMessage(state)
     }
