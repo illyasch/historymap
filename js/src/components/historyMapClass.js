@@ -48,7 +48,7 @@ export class historyMapClass {
     }
 
     render(state) {
-        console.log('New render!')
+        console.log('historyMap render!')
 
         if(state.fetching.started) {
             return
@@ -127,8 +127,6 @@ export class historyMapClass {
     }
 
     createMarkerDialog(marker) {
-        marker = marker.googleMarker
-
         marker.setMap(this.map)
 
         const contentString = '<div id="content">'+
@@ -174,5 +172,13 @@ export class historyMapClass {
         window.close()
         marker.setMap(null)
         this.store.dispatch(removeNewMarker(marker))
+    }
+
+    selectMarker(marker) {
+        this.map.setCenter({
+            lat: marker.x,
+            lng: marker.y
+        })
+        this.map.setZoom(14)
     }
 }

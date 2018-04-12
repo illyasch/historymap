@@ -8,15 +8,30 @@ export class markerClass {
         this.title = marker.title
         this.photoCnt = parseInt(marker.cnt)
 
-        const icon = this.photoCnt > 0 ? 'static/img/Camera-Moto-icon.png' : null;
+        let icon, help
+        if (this.photoCnt > 0) {
+            icon = 'static/img/Camera-Moto-icon.png'
+            help = 'Просмотреть фото'
+        } else {
+            icon = 'static/img/marker_green.png'
+            help = 'Добавить фото'
+        }
 
         this.googleMarker = new google.maps.Marker({
             position: {
                 lat: parseFloat(this.x),
                 lng: parseFloat(this.y)
             },
-            title: this.title,
-            icon: icon
+            title: help,
+            label: {
+                color: 'black',
+                fontWeight: 'normal',
+                text: this.title,
+            },
+            icon: {
+                url: icon,
+                labelOrigin: new google.maps.Point(11, 50)
+            }
         })
     }
 }

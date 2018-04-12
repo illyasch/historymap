@@ -1,5 +1,7 @@
 'use strict'
 
+import {openPhotoDialog} from "./photos"
+
 export function saveNewMarker(url, position, title) {
     const params = {
         lat: position.lat(),

@@ -9,6 +9,7 @@ import { historyMapClass } from './components/historyMapClass'
 import { settings } from './settings'
 import { photoDialogClass } from './components/photoDialogClass'
 import { photoSwipeClass } from './components/photoSwipeClass'
+import {dropdownMenuClass} from './components/dropdownMenuClass'
 import { default as initSubscriber } from 'redux-subscriber'
 
 const store = createStore(
@@ -24,8 +25,13 @@ export function initStore() {
     const historyMap = new historyMapClass(store)
     const photoDialog = new photoDialogClass(store)
     const photoSwipe = new photoSwipeClass(store)
+    const dropdownMenu = new dropdownMenuClass(store, historyMap)
 
-    subscribe('markers', (state) => historyMap.render(state))
+    subscribe('markers', (state) => {
+        historyMap.render(state)
+        dropdownMenu.render(state)
+    })
+
     subscribe('overlays', (state) => historyMap.render(state))
     subscribe('years', (state) => historyMap.render(state))
     subscribe('newElements', (state) => historyMap.render(state))
