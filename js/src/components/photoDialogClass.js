@@ -1,12 +1,21 @@
 'use strict'
 
-import {closePhotoDialog, openPhotoDialog, setPhotoDialog, setUploadPhotoStatus} from "../actions/photos"
+import {
+    closePhotoDialog,
+    openPhotoDialog,
+    saveNewMarkerId,
+    setPhotoDialog,
+    setUploadPhotoStatus
+} from "../actions/photos"
 import {uploadPhoto} from "../actions/uploadPhoto"
 import {settings} from "../settings"
+import {clearMarkers} from "../actions/markers"
+import {fetchMarkers} from "../actions/fetchMarkers"
 
 export class photoDialogClass {
-    constructor(store) {
+    constructor(store, map) {
         this.store = store
+        this.map = map
     }
 
     render(state) {
@@ -15,26 +24,32 @@ export class photoDialogClass {
     }
 
     renderPhotoDialog(state) {
+        console.log('renderPhotoDialog')
+
         if (!state.photos || !state.photos.dialog || !state.photos.dialog.marker_id || state.photos.dialog.opened) {
             return
         }
 
+
         const marker = state.markers.find((el) => el.marker_id == state.photos.dialog.marker_id)
+
+        console.log(marker)
 
         if (!marker) {
             return
         }
 
-        const contentString = '<div id="content">'+
+        const contentString = '<div class="photoUploadForm" id="content">'+
             '<div id="siteNotice">'+
             '</div>'+
-            '<h1 id="firstHeading" class="firstHeading">Добавить фото</h1>' +
-            '<div id="bodyContent"><form id="photoForm" name="photoForm">' +
+            '<h3 id="firstHeading">Добавить фото</h3>' +
             '<div id="uploadStatusMessage"></div>' +
-            '<p>Название<br><textarea name="photoText" id="photoText"></textarea></p>' +
-            '<p><input type="file" name="photoFile" id="photoFile"></p>'+
-            '<p><input id="photoSubmit" type="button" value="Сохранить"> <input id="photoNext" type="button" value="Еще фото &gt;&gt;"></p>'+
-            '</form></div>'+
+            '<form id="photoForm" name="photoForm"><fieldset>' +
+            '<label for="photoText">Год</label><input type="text" name="photoYear" id="photoYear">' +
+            '<label for="photoText">Название</label><textarea name="photoText" id="photoText"></textarea>' +
+            '<input type="file" name="photoFile" id="photoFile">'+
+            '<input id="photoSubmit" type="button" value="Сохранить"> <input id="photoNext" type="button" value="Еще фото &gt;&gt;">'+
+            '</fieldset></form>'+
             '</div>';
 
         const infoWindow = new google.maps.InfoWindow({
@@ -47,6 +62,7 @@ export class photoDialogClass {
             const uploadFunc = (e) => {
                 e.stopPropagation()
 
+                const year = document.getElementById("photoYear").value
                 const text = document.getElementById("photoText").value
                 const file = document.getElementById("photoFile")
 
@@ -57,7 +73,7 @@ export class photoDialogClass {
                 infoWindow.close()
 
                 dispatch(setUploadPhotoStatus(null))
-                dispatch(uploadPhoto(settings.apiURLs.uploadPhoto, marker.marker_id, file, text))
+                dispatch(uploadPhoto(settings.apiURLs.uploadPhoto, marker.marker_id, file, year, text))
                 dispatch(closePhotoDialog())
 
                 return true
@@ -72,10 +88,13 @@ export class photoDialogClass {
 
             google.maps.event.addListener(infoWindow, 'closeclick', (e) => {
                 dispatch(closePhotoDialog())
+                dispatch(saveNewMarkerId(null))
+                dispatch(clearMarkers())
+                dispatch(fetchMarkers(settings.apiURLs.markersList))
             })
         })
 
-        infoWindow.open(this.map, marker.googleMarker)
+        infoWindow.open(this.map.map, marker.googleMarker)
         dispatch(setPhotoDialog())
     }
 

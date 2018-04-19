@@ -33,6 +33,11 @@ const photos = (state = {dialog: null}, action) => {
                 uploadPhotoStatus: action.status
             })
 
+        case 'SAVE_NEW_MARKER_ID':
+            return Object.assign({}, state, {
+                newMarkerId: action.newMarkerId
+            })
+
         default:
             return state
     }

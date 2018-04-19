@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 class SettingsClass {
     constructor() {
@@ -15,6 +15,23 @@ class SettingsClass {
             south: 50.425817,
             east: 30.559748
         }
+
+        this.innerBounds = {
+            north: 50.486148,
+            west: 30.472767,
+            south: 50.425817,
+            east: 30.559748
+        }
+
+        this.mapCenter = {
+            lat: 50.485037,
+            lng: 30.433667
+        }
+
+        this.minZoom = 12
+        this.maxZoom = 16
+        this.selectMarkerZoom = 14
+        this.enable1911Zoom = 14
 
         this.apiURLs = {
             imagesList: '/bgimages',

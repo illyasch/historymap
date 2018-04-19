@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/astaxie/beego"
+	"github.com/grokify/html-strip-tags-go"
 )
 
 type BgImage struct {
@@ -71,7 +72,7 @@ func CreateMarker(x float64, y float64, title string, lang string) (newMarkerId 
 	if err == nil {
 		newTitle.Lang_id = curLang.Lang_id
 		newTitle.Marker_id = newMarkerId
-		newTitle.Title = title
+		newTitle.Title = strip.StripTags(title)
 
 		_, err = o.Insert(&newTitle)
 	}

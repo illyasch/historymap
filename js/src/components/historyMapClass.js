@@ -4,8 +4,7 @@ import { settings } from '../settings'
 import { displayYears } from '../actions/years'
 import { createNewMarker, removeNewMarker } from '../actions/markers'
 import {saveNewMarker} from "../actions/saveNewMarker"
-import {uploadPhoto} from "../actions/uploadPhoto"
-import {openPhotoDialog, closePhotoDialog, setPhotoDialog, setUploadPhotoStatus} from "../actions/photos"
+import {openPhotoDialog} from "../actions/photos"
 import {fetchMarkerPhotos} from "../actions/fetchMarkerPhotos"
 
 export class historyMapClass {
@@ -13,23 +12,19 @@ export class historyMapClass {
         this.store = store
 
         this.map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 12,
-            minZoom: 12,
-            maxZoom: 16,
-            center: {
-                lat: 50.485037,
-                lng: 30.433667
-            }
+            zoom: settings.minZoom,
+            minZoom: settings.minZoom,
+            maxZoom: settings.maxZoom,
+            center: settings.mapCenter,
+            mapTypeControl: false,
+            fullscreenControl: false
         })
 
-        this.map.setCenter({
-            lat: 50.485037,
-            lng: 30.433667
-        })
+        this.map.setCenter(settings.mapCenter)
 
-        this.bounds2 = new google.maps.LatLngBounds(
-            new google.maps.LatLng(50.425817, 30.472767),
-            new google.maps.LatLng(50.486148, 30.559748)
+        this.innerBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(settings.innerBounds.south, settings.innerBounds.west),
+            new google.maps.LatLng(settings.innerBounds.north, settings.innerBounds.east)
         )
 
         this.allowedBounds = new google.maps.LatLngBounds(
@@ -37,14 +32,12 @@ export class historyMapClass {
             new google.maps.LatLng(settings.bounds1902.north, settings.bounds1902.east)
         )
 
-        this.images = this.overlays = [];
+        this.images = this.overlays = []
 
-        const onClickListener = function(event) { this.createMarker(event) }.bind(this)
+        this.map.addListener('click', (event) => this.createMarker(event))
 
-        this.map.addListener('click', onClickListener)
-
-        this.map.addListener('zoom_changed', function() { this.checkLayers() }.bind(this))
-        this.map.addListener('bounds_changed', function() { this.checkBounds() }.bind(this))
+        this.map.addListener('zoom_changed', () => this.checkLayers())
+        this.map.addListener('bounds_changed', () => this.checkBounds())
     }
 
     render(state) {
@@ -56,7 +49,6 @@ export class historyMapClass {
 
         this.renderOverlays(state.overlays, state.years)
         this.renderMarkers(state.markers)
-        this.renderNewElements(state.newElements)
     }
 
     renderOverlays(overlays, years) {
@@ -84,24 +76,18 @@ export class historyMapClass {
         })
     }
 
-    renderNewElements(newElements) {
-        newElements.forEach((element, i) => {
-            this.createMarkerDialog(element)
-        })
-    }
-
     createMarker(event) {
         this.store.dispatch(createNewMarker(event.latLng))
     }
 
     checkLayers() {
-        const zoom = this.map.getZoom();
-        const C = this.map.getCenter();
+        const zoom = this.map.getZoom()
+        const C = this.map.getCenter()
 
-        if (zoom > 13 && this.bounds2.contains(C)) {
-            this.store.dispatch(displayYears([1902, 1911]));
+        if (zoom >= settings.enable1911Zoom && this.innerBounds.contains(C)) {
+            this.store.dispatch(displayYears([1902, 1911]))
         } else {
-            this.store.dispatch(displayYears([1902]));
+            this.store.dispatch(displayYears([1902]))
         }
     }
 
@@ -126,59 +112,11 @@ export class historyMapClass {
         }
     }
 
-    createMarkerDialog(marker) {
-        marker.setMap(this.map)
-
-        const contentString = '<div id="content">'+
-            '<div id="siteNotice">'+
-            '</div>'+
-            '<h1 id="firstHeading" class="firstHeading">Добавить точку</h1>'+
-            '<div id="bodyContent"><form id="markerForm" name="markerForm">'+
-            '<p>Название<br><textarea name="markerName" id="markerName"></textarea></p>'+
-            '<p><input id="markerSubmit" type="button" value="Добавить"> <input id="markerCancel" type="button" value="Отменить"></p>'+
-            '</form></div>'+
-            '</div>';
-
-        const infoWindow = new google.maps.InfoWindow({
-            content: contentString
-        })
-
-        const dispatch = this.store.dispatch
-
-        google.maps.event.addListener(infoWindow, 'domready', () => {
-            document.getElementById("markerSubmit").addEventListener("click", (e) => {
-                e.stopPropagation()
-
-                const title = document.getElementById("markerName").value;
-                this.closeMarkerDialog(infoWindow, marker)
-
-                dispatch(saveNewMarker(settings.apiURLs.markersCreate, marker.getPosition(), title))
-            })
-
-            document.getElementById("markerCancel").addEventListener("click", (e) => {
-                e.stopPropagation()
-                this.closeMarkerDialog(infoWindow, marker)
-            })
-
-            google.maps.event.addListener(infoWindow, 'closeclick', (e) => {
-                this.closeMarkerDialog(infoWindow, marker)
-            })
-        })
-
-        infoWindow.open(this.map, marker)
-    }
-
-    closeMarkerDialog(window, marker) {
-        window.close()
-        marker.setMap(null)
-        this.store.dispatch(removeNewMarker(marker))
-    }
-
     selectMarker(marker) {
         this.map.setCenter({
             lat: marker.x,
             lng: marker.y
         })
-        this.map.setZoom(14)
+        this.map.setZoom(settings.selectMarkerZoom)
     }
 }

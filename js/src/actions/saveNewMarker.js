@@ -1,6 +1,9 @@
 'use strict'
 
-import {openPhotoDialog} from "./photos"
+import {saveNewMarkerId} from "./photos"
+import {fetchMarkers} from "./fetchMarkers"
+import {settings} from "../settings"
+import {clearMarkers} from "./markers"
 
 export function saveNewMarker(url, position, title) {
     const params = {
@@ -9,7 +12,7 @@ export function saveNewMarker(url, position, title) {
         title: title
     }
 
-    return function (dispatch) {
+    return (dispatch) => {
         return fetch(url, {
             method: 'post',
             body: JSON.stringify(params)
@@ -18,16 +21,18 @@ export function saveNewMarker(url, position, title) {
                 return response.json();
             }
 
-            throw new Error("Oops, a new marker saving error!");
-        }).then(function(json) {
+            throw new Error("Oops, a new marker saving error!")
+        }).then((json) => {
             if (json.Status == 'error') {
                 console.log('A marker saving error:')
                 console.log(json)
 
-                throw new Error("Oops, a new marker creation error!");
+                throw new Error("Oops, a new marker creation error!")
             }
 
-            dispatch(openPhotoDialog(json.Data.newId))
+            dispatch(clearMarkers())
+            dispatch(fetchMarkers(settings.apiURLs.markersList))
+            dispatch(saveNewMarkerId(json.Data.newId))
         }).catch(function(error) {
             console.log(error)
         })

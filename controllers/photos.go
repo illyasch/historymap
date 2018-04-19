@@ -29,7 +29,14 @@ func (this *PhotosController) UploadPhoto() {
 		this.response.SetError(models.INPUT_PARAMS_ERROR, err)
 	}
 
-	newPhotoId, err := models.CreatePhoto(this, "file", fileHeader.Filename, this.GetString("marker_id"), this.GetString("text"), "ru")
+	newPhotoId, err := models.CreatePhoto(
+		this,
+		"file",
+		fileHeader.Filename,
+		this.GetString("marker_id"),
+		this.GetString("year"),
+		this.GetString("text"),
+		"ru")
 
 	if err == nil {
 		this.response.SetSuccess()

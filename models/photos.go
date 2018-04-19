@@ -11,6 +11,7 @@ import (
 	_ "image/jpeg"
 	_ "image/gif"
 	"github.com/astaxie/beego/logs"
+	"github.com/grokify/html-strip-tags-go"
 )
 
 type Photo struct {
@@ -19,6 +20,7 @@ type Photo struct {
 	Src string
 	Width int
 	Height int
+	Year int
 }
 
 type PhotoText struct {
@@ -48,7 +50,7 @@ type SaveToFile interface {
 	SaveToFile(fromfile, tofile string) error
 }
 
-func CreatePhoto(this SaveToFile, paramName string, filename string, marker string, text string, lang string) (int64, error) {
+func CreatePhoto(this SaveToFile, paramName string, filename string, marker string, year string, text string, lang string) (int64, error) {
 	fileExt := getFileExtension(filename)
 
 	logger := logs.NewLogger(100)
@@ -70,6 +72,10 @@ func CreatePhoto(this SaveToFile, paramName string, filename string, marker stri
 	}
 
 	var newPhoto Photo
+	if err == nil {
+		newPhoto.Year, err = strconv.Atoi(year)
+	}
+
 	if err == nil {
 		newPhoto.Marker_id = curMarker.Marker_id
 		newPhoto.Photo_id, err = o.Insert(&newPhoto)
@@ -94,7 +100,7 @@ func CreatePhoto(this SaveToFile, paramName string, filename string, marker stri
 	if err == nil {
 		newPhotoText.Photo_id = newPhoto.Photo_id
 		newPhotoText.Lang_id = curLang.Lang_id
-		newPhotoText.About = text
+		newPhotoText.About = strip.StripTags(text)
 
 		newPhotoText.Text_id, err = o.Insert(&newPhotoText)
 	}

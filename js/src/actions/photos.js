@@ -26,3 +26,8 @@ export const openPhotoSwipe = (photos) => ({
 export const closePhotoSwipe = () => ({
     type: 'CLOSE_PHOTO_SWIPE'
 })
+
+export const saveNewMarkerId = (newMarkerId) => ({
+    type: 'SAVE_NEW_MARKER_ID',
+    newMarkerId
+})

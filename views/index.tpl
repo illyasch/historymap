@@ -24,23 +24,22 @@
     <main class="wrapper">
         <nav class="navigation">
             <section class="container">
-                <a class="navigation-title" href="https://milligram.github.io/">
-                    <h1 class="title">Историческая карта Киева</h1>
-                </a>
+                <h1 class="title">Историческая карта Киева</h1>
                 <ul class="navigation-list float-right">
                     <li class="navigation-item">
-                        <a class="navigation-link" href="#popover-grid" data-popover>Интересные фото</a>
-                        <div class="popover" id="popover-grid">
+                        <a class="navigation-link" href="#popover-markers" data-popover><img class="img" src="static/img/camera-64x64.png">
+                        </a>
+                        <div class="popover" id="popover-markers">
                             <ul class="popover-list" id="ulMarkersList">
                             </ul>
                         </div>
                     </li>
                     <li class="navigation-item">
-                        <a class="navigation-link" href="#popover-support" data-popover>Помочь</a>
-                        <div class="popover" id="popover-support">
+                        <a class="navigation-link" href="#popover-add" data-popover><img class="img" src="static/img/location-marker-64x64.png"></a>
+                        <div class="popover popover-wide" id="popover-add">
                             <ul class="popover-list">
-                                <li class="popover-item"><a class="popover-link" target="blank" title="Добавить место">Добавить место</a></li>
-                                <li class="popover-item"><a class="popover-link" target="blank" title="">Добавить фото</a></li>
+                                <li class="popover-item"><div class="popover-text">Добавьте маркер на карте, кликнув на то место, куда хотите его поставить</div></li>
+                                <li class="popover-item"><div class="popover-text">Загрузите фото, и они будут привязаны к маркеру и видны на карте</div></li>
                             </ul>
                         </div>
                     </li>

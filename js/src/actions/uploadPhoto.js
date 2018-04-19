@@ -2,10 +2,11 @@
 
 import {openPhotoDialog, setUploadPhotoStatus} from "./photos"
 
-export function uploadPhoto(url, marker_id, input, text) {
+export function uploadPhoto(url, marker_id, input, year, text) {
     const data = new FormData()
     data.append('file', input.files[0])
     data.append('marker_id', marker_id)
+    data.append('year', year)
     data.append('text', text)
 
     return function (dispatch) {

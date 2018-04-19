@@ -1,9 +1,10 @@
 'use strict'
 
 import {placeMarker, startFetchingMarkers, finishFetchingMarkers} from './markers'
+import {openPhotoDialog} from "./photos"
 
 export function fetchMarkers(url) {
-    return function (dispatch) {
+    return function (dispatch, getState) {
         dispatch(startFetchingMarkers())
 
         return fetch(url).then(function(response) {
@@ -22,11 +23,14 @@ export function fetchMarkers(url) {
                 throw new Error("Oops, a new marker fetching error!")
             }
 
-            json.Data.markers.forEach(function (marker) {
-                dispatch(placeMarker(marker))
-            })
+            json.Data.markers.forEach((marker) => dispatch(placeMarker(marker)))
+
+            const {photos} = getState()
+            if (photos.newMarkerId) {
+                dispatch(openPhotoDialog(photos.newMarkerId))
+            }
         }).catch(function(error) {
-            console.log(error);
+            console.log(error)
         })
     }
 }
